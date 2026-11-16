@@ -1,0 +1,34 @@
+name: Update README Index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '!README.md'
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run index generator script
+        run: python scripts/build_readme.py
+
+      - name: Commit and push updated README
+        run: |
+          git config --local user.email "github-actions[bot]@://github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update README index" && git push)
